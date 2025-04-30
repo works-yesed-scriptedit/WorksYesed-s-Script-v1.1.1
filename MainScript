@@ -726,7 +726,7 @@ ToolTab:AddButton({
             bodyVelocity.Parent = beam
 
             -- ビームが何かに当たったら即死
-　　　　　　　local connection
+            local connection
             connection = beam.Touched:Connect(function(hit)
                 if hit and hit.Parent:FindFirstChild("Humanoid") then
                     local humanoid = hit.Parent.Humanoid
