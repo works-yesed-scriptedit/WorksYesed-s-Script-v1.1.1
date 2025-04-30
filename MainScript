@@ -1,4 +1,4 @@
-print("ロードしますよ")
+print("ロード開始!")
 
 -- テレポート後に自動でこのスクリプトを再実行させる設定
 local success, err = pcall(function()
@@ -36,6 +36,17 @@ local HomeTab = Window:MakeTab({
     Icon = "rbxassetid://4483345998", -- アイコン自由に変更してOK
     PremiumOnly = false
 })
+
+--題名部分
+local success, info = pcall(function()
+    return game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
+end)
+local gameName = success and info.Name or "Unknown Game"
+
+HomeTab:AddParagraph(
+    "Hello! " .. LocalPlayer.DisplayName,
+    LocalPlayer.Name .. " - WorksYesed Hub - " .. gameName .. " - {" .. game.PlaceId .. "}"
+)
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
