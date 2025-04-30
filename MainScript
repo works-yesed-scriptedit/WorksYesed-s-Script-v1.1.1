@@ -820,15 +820,21 @@ ToolTab:AddButton({
         screenGui.Name = "ExplosionBlasterUI"
         screenGui.ResetOnSpawn = false
 
-        local fireButton = Instance.new("TextButton")
-        fireButton.Size = UDim2.new(0, 50, 0, 50)
-        fireButton.Position = UDim2.new(1, -60, 0, 10)
-        fireButton.BackgroundTransparency = 0.5
-        fireButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-        fireButton.Text = "💥"
-        fireButton.TextScaled = true
-        fireButton.Visible = false
-        fireButton.Parent = screenGui
+        -- GUI 発射ボタン生成（統一版）
+        local explosionButton = Instance.new("TextButton")
+        explosionButton.Name = "FireButton"
+        explosionButton.Size = UDim2.new(0, 50, 0, 50)
+        explosionButton.Position = UDim2.new(0, 50, 0, 50)
+        explosionButton.Text = "💥"
+        explosionButton.TextSize = 30
+        explosionButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        explosionButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        explosionButton.BackgroundTransparency = 0.5
+        explosionButton.BorderSizePixel = 0
+        explosionButton.AnchorPoint = Vector2.new(0, 0)
+        explosionButton.AutoButtonColor = false
+        explosionButton.Visible = false
+        explosionButton.Parent = screenGui
 
         local crosshair = Instance.new("TextLabel")
         crosshair.Size = UDim2.new(0, 30, 0, 30)
