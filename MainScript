@@ -33,26 +33,28 @@ OrionLib:MakeNotification({
 -- Homeタブを作成
 local HomeTab = Window:MakeTab({
     Name = "Home",
-    Icon = "rbxassetid://4483345998", -- アイコン自由に変更してOK
+    Icon = "rbxassetid://4483345998", -- アイコン自由に変更OK
     PremiumOnly = false
 })
-
---題名部分
-local success, info = pcall(function()
-    return game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId)
-end)
-local gameName = success and info.Name or "Unknown Game"
-
-HomeTab:AddParagraph(
-    "Hello! " .. LocalPlayer.DisplayName,
-    LocalPlayer.Name .. " - WorksYesed Hub - " .. gameName .. " - {" .. game.PlaceId .. "}"
-)
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RunService = game:GetService("RunService")
+local MarketplaceService = game:GetService("MarketplaceService")
 
 local startTime = tick()
+
+-- ゲーム名の取得（失敗対策込み）
+local success, gameInfo = pcall(function()
+    return MarketplaceService:GetProductInfo(game.PlaceId)
+end)
+local gameName = success and gameInfo.Name or "Unknown Game"
+
+-- 段落：プレイヤー情報とゲーム情報を表示（サーバー情報の前に表示）
+HomeTab:AddParagraph(
+    "Hello! " .. LocalPlayer.DisplayName,
+    LocalPlayer.Name .. " - WorksYesed Hub - " .. gameName .. " - {" .. game.PlaceId .. "}"
+)
 
 -- 左上エリア：Server Informationセクション作成
 HomeTab:AddSection({
@@ -86,15 +88,13 @@ RunService.Heartbeat:Connect(function()
     local seconds = elapsed % 60
     ServerInfoLabels.InServerFor:Set(string.format("In server for: %02d:%02d", minutes, seconds))
 end)
---Discord button
+
+-- Discord（またはSNS）リンクコピー用ボタン
 HomeTab:AddButton({
     Name = "リンクコピー",
     Callback = function()
-        -- コピーするリンクを指定
-        local linkToCopy = "https://www.tiktok.com/@works.yesed"  -- ここにコピーしたいURLを設定
-        
-        -- リンクをコピー（実行者のクリップボードにコピー）
-        setclipboard(linkToCopy)  -- リンクをクリップボードにコピー
+        local linkToCopy = "https://www.tiktok.com/@works.yesed"
+        setclipboard(linkToCopy)
     end    
 })
 
