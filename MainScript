@@ -1,4 +1,4 @@
-print("ロードスタート！！")
+print("ロードスタートします")
 
 -- テレポート後に自動でこのスクリプトを再実行させる設定
 local success, err = pcall(function()
@@ -646,17 +646,16 @@ ToolTab:AddButton({
         local screenGui = Instance.new("ScreenGui")
         screenGui.Parent = player.PlayerGui
 
-        -- ＋マーク
-        local plusLabel = Instance.new("TextLabel")
-        plusLabel.Parent = screenGui
-        plusLabel.Size = UDim2.new(0, 80, 0, 80)
-        plusLabel.Position = UDim2.new(0.5, -40, 0.5, -60)
-        plusLabel.Text = "+"
-        plusLabel.TextSize = 60
-        plusLabel.TextColor3 = Color3.fromRGB(50, 50, 50)
-        plusLabel.BackgroundTransparency = 1
-        plusLabel.TextStrokeTransparency = 0.8
-        plusLabel.Visible = false
+        -- クロスヘア（＋）
+        local crosshair = Instance.new("TextLabel")
+        crosshair.Size = UDim2.new(0, 30, 0, 30)
+        crosshair.Position = UDim2.new(0.5, -15, 0.5, -45)
+        crosshair.BackgroundTransparency = 1
+        crosshair.Text = "+"
+        crosshair.TextColor3 = Color3.new(1, 1, 1)
+        crosshair.TextScaled = true
+        crosshair.Visible = false
+        crosshair.Parent = screenGui
 
         -- 💥ボタン
         local explosionButton = Instance.new("TextButton")
@@ -961,7 +960,7 @@ ToolTab:AddButton({
                 local explosion = Instance.new("Explosion")
                 explosion.Position = projectile.Position
                 explosion.BlastRadius = 20
-                explosion.BlastPressure = 10000
+                explosion.BlastPressure = 1000000
                 explosion.DestroyJointRadiusPercent = 0
                 explosion.Parent = workspace
 
