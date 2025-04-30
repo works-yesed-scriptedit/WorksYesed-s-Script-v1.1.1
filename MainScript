@@ -1,4 +1,4 @@
-print("ロード開始するよ")
+print("ロード開始するよ〜")
 
 -- テレポート後に自動でこのスクリプトを再実行させる設定
 local success, err = pcall(function()
@@ -891,7 +891,7 @@ ToolTab:AddButton({
             local originalPos = fireButton.Position
             local shrinkTween = TweenService:Create(fireButton, TweenInfo.new(0.1), {
                 Size = UDim2.new(0, 45, 0, 45),
-                Position = UDim2.new(1, -57, 0, 12)
+                Position = UDim2.new(0, 52, 0, 52)
             })
             local expandTween = TweenService:Create(fireButton, TweenInfo.new(0.1), {
                 Size = originalSize,
