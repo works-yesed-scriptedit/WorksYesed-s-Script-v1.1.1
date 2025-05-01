@@ -1,4 +1,4 @@
-print("ロード始め")
+print("ロード始めます")
 
 -- テレポート後に自動でこのスクリプトを再実行させる設定
 local success, err = pcall(function()
@@ -631,7 +631,7 @@ ToolTab:AddButton({
     end    
 })
 
---スナイパーツール
+--スナイパーツール（Orionのボタン付き）
 ToolTab:AddButton({
     Name = "Sniper",
     Callback = function()
@@ -720,7 +720,7 @@ ToolTab:AddButton({
 
             local bodyVelocity = Instance.new("BodyVelocity")
             bodyVelocity.MaxForce = Vector3.new(5000, 5000, 5000)
-            bodyVelocity.Velocity = camera.CFrame.LookVector * 300
+            bodyVelocity.Velocity = camera.CFrame.LookVector * 2000
             bodyVelocity.Parent = beam
 
             local connection
