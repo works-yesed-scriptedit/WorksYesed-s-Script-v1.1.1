@@ -1,4 +1,4 @@
-print("ロード始めます")
+print("ローディング中")
 
 -- テレポート後に自動でこのスクリプトを再実行させる設定
 local success, err = pcall(function()
@@ -632,6 +632,7 @@ ToolTab:AddButton({
 })
 
 --スナイパーツール（Orionのボタン付き）
+--スナイパーツール
 ToolTab:AddButton({
     Name = "Sniper",
     Callback = function()
@@ -702,6 +703,8 @@ ToolTab:AddButton({
             if tick() - lastFireTime < cooldown then return end
             lastFireTime = tick()
 
+            local camCF = camera.CFrame
+
             fireSound:Play()
             explosionButton.Text = "Loading"
             explosionButton.TextSize = 20
@@ -715,12 +718,12 @@ ToolTab:AddButton({
             beam.BrickColor = BrickColor.new("Bright yellow")
             beam.Anchored = false
             beam.CanCollide = false
-            beam.CFrame = camera.CFrame * CFrame.new(0, 0, -5)
+            beam.CFrame = camCF * CFrame.new(0, 0, -5)
             beam.Parent = workspace
 
             local bodyVelocity = Instance.new("BodyVelocity")
-            bodyVelocity.MaxForce = Vector3.new(5000, 5000, 5000)
-            bodyVelocity.Velocity = camera.CFrame.LookVector * 2000
+            bodyVelocity.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+            bodyVelocity.Velocity = camCF.LookVector * 2000
             bodyVelocity.Parent = beam
 
             local connection
