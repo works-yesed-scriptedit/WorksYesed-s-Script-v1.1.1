@@ -1,4 +1,4 @@
-print("ロード開始")
+print("ロード開始します")
 
 -- テレポート後に自動でこのスクリプトを再実行させる設定
 local success, err = pcall(function()
@@ -989,7 +989,7 @@ ToolTab:AddButton({
 				projectile:Destroy()
 			end)
 
-			wait(1)
+			wait(0)
 			fireButton.Text = "💥"
 			canFire = true
 		end)
