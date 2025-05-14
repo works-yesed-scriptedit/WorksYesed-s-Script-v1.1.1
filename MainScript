@@ -476,6 +476,96 @@ CharacterTab:AddToggle({
 	end
 })
 
+--vfly
+-- vfly設定
+local vflyEnabled = false
+local vflySpeed = 3
+local vflyConnection = nil
+local inputVector = Vector3.zero
+
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local ContextActionService = game:GetService("ContextActionService")
+
+-- vflyの方向入力を検出（WASD & モバイルスティック対応）
+local function updateInputVector()
+    local forward = 0
+    local right = 0
+
+    if UserInputService:IsKeyDown(Enum.KeyCode.W) then forward += 1 end
+    if UserInputService:IsKeyDown(Enum.KeyCode.S) then forward -= 1 end
+    if UserInputService:IsKeyDown(Enum.KeyCode.D) then right += 1 end
+    if UserInputService:IsKeyDown(Enum.KeyCode.A) then right -= 1 end
+
+    inputVector = Vector3.new(right, 0, forward).Unit
+    if inputVector.Magnitude ~= inputVector.Magnitude then -- NaN check
+        inputVector = Vector3.zero
+    end
+end
+
+-- モバイル操作も含めた移動ベクトル
+local function mobileAction(_, inputState, inputObj)
+    if inputState == Enum.UserInputState.Change then
+        inputVector = Vector3.new(inputObj.Position.X, 0, -inputObj.Position.Y)
+    elseif inputState == Enum.UserInputState.End then
+        inputVector = Vector3.zero
+    end
+end
+
+-- vfly速度入力用TextBox
+CharacterTab:AddTextbox({
+	Name = "FlySpeed",
+	Default = "3",
+	TextDisappear = true,
+	Callback = function(Value)
+		local num = tonumber(Value)
+		if num then
+			vflySpeed = num
+			print("vflySpeed set to", vflySpeed)
+		else
+			warn("数値を入力してください")
+		end
+	end	  
+})
+
+-- vfly ON/OFFトグル
+CharacterTab:AddToggle({
+	Name = "vfly",
+	Default = false,
+	Callback = function(Value)
+		vflyEnabled = Value
+
+		local player = game.Players.LocalPlayer
+		local character = player.Character or player.CharacterAdded:Wait()
+		local hrp = character:WaitForChild("HumanoidRootPart")
+
+		if Value then
+			-- モバイル操作受付開始
+			ContextActionService:BindAction("vflyMobile", mobileAction, false, Enum.PlayerActions.CharacterForward)
+
+			vflyConnection = RunService.RenderStepped:Connect(function()
+				updateInputVector()
+				if inputVector.Magnitude > 0 then
+					local camCF = workspace.CurrentCamera.CFrame
+					local moveDir = (camCF.RightVector * inputVector.X + camCF.LookVector * inputVector.Z).Unit
+					if moveDir.Magnitude == moveDir.Magnitude then -- NaN check
+						hrp.Velocity = moveDir * vflySpeed
+					end
+				else
+					hrp.Velocity = Vector3.new(0, 0, 0)
+				end
+			end)
+		else
+			if vflyConnection then
+				vflyConnection:Disconnect()
+				vflyConnection = nil
+			end
+			ContextActionService:UnbindAction("vflyMobile")
+			hrp.Velocity = Vector3.zero
+		end
+	end    
+})
+
 --==ここより下は別のタブになります==--
 
 --タブの作成
