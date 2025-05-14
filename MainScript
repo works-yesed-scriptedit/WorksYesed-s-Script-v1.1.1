@@ -21,7 +21,7 @@ local Window = OrionLib:MakeWindow({
     ConfigFolder = "Err0rNoob Hub", -- Put the name of your hub or script here!
     Theme = {
         -- 青くてプログラム風の背景画像（半透明っぽく見える）
-        Image = "rbxassetid://13583158959",
+        Image = "rbxassetid://8752340878",
 
         -- UI本体の黒い部分はそのまま維持
         Background = Color3.fromRGB(20, 20, 20),
