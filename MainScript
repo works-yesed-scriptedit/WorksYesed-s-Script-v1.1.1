@@ -53,7 +53,7 @@ local gameName = success and gameInfo.Name or "Unknown Game"
 -- 段落：プレイヤー情報とゲーム情報を表示（サーバー情報の前に表示）
 HomeTab:AddParagraph(
     "Hello! " .. LocalPlayer.DisplayName,
-    LocalPlayer.Name .. " - WorksYesed Hub - " .. gameName .. " - {" .. game.PlaceId .. "}"
+    LocalPlayer.Name .. " - Err0rNoob Hub - " .. gameName .. " - {" .. game.PlaceId .. "}"
 )
 
 -- 左上エリア：Server Informationセクション作成
