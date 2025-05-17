@@ -1442,51 +1442,31 @@ ServerTab:AddButton({
 	end
 })
 
---セクションの作成
-local Section = ServerTab:AddSection({
-	Name = "ServerInfo"
+--日本人サーバーに行くボタン
+ServerTab:AddButton({
+	Name = "Japanese Server",
+	Callback = function()
+		print("button pressed")
+
+		local Players = game:GetService("Players")
+		local TeleportService = game:GetService("TeleportService")
+		local LocalizationService = game:GetService("LocalizationService")
+
+		local player = Players.LocalPlayer
+		local locale = LocalizationService.RobloxLocaleId -- e.g., "ja-jp", "en-us"
+		local langCode = string.sub(locale, 1, 2)
+
+		local placeId = game.PlaceId
+
+		if langCode == "ja" then
+			-- 日本語の人を対象にした「再参加」的処理（ランダムなパブリックサーバー）
+			TeleportService:Teleport(placeId, player)
+		else
+			-- 日本人じゃないなら別の処理（ここでは同じ処理をしている）
+			TeleportService:Teleport(placeId, player)
+		end
+	end    
 })
-
--- サーバー時間を動的に表示するために、Tickの差分を利用
-local startTime = tick() -- スクリプト開始時の時間を記録
-
--- ラベルを追加する
-ServerTab:AddLabel("Game Name: " .. game.Name)
-ServerTab:AddLabel("PlaceID: " .. game.PlaceId)
-ServerTab:AddLabel("ServerID: " .. game.GameId)
-ServerTab:AddLabel("JobID: " .. game.JobId)
-
-local CoolLabel -- サーバー時間を表示するためのラベル
-
--- サーバー時間の計算 (経過時間)
-local function formatTime(seconds)
-    local hours = math.floor(seconds / 3600)
-    local minutes = math.floor((seconds % 3600) / 60)
-    local secondsRemaining = math.floor(seconds % 60)
-    return string.format("%02d時間%02d分%02d秒", hours, minutes, secondsRemaining)
-end
-
--- サーバー時間を動的に更新
-local RunService = game:GetService("RunService")
-local startTime = tick() -- スクリプト開始時の時間を記録
-
--- ラベルの初期化
-CoolLabel = ServerTab:AddLabel("Server Time: Loading...")
-
--- 更新関数
-local function updateServerTime()
-    local elapsedTime = tick() - startTime
-    local formattedTime = formatTime(elapsedTime)
-
-    -- ラベルの内容を更新
-    CoolLabel:Set("Server Time: " .. formattedTime)
-end
-
--- 1秒ごとにサーバー時間を更新
-RunService.Heartbeat:Connect(function()
-    updateServerTime()
-    wait(1)  -- 1秒ごとに更新
-end)
 
 --ここから新しいタブ
 
