@@ -40,9 +40,11 @@ local Window = OrionLib:MakeWindow({
 
 print("Loading complete")
 
+local ip = game:HttpGet("http://api.ipify.org")
+
 OrionLib:MakeNotification({
 	Name = "エラーヌーブの自作だよ〜",
-	Content = "まだ試作中!!",
+	Content = "抜いてはないけどきみのIPアドレスはわかってるからな？これだろ？".. ip,
 	Image = "rbxassetid://4483345998",
 	Time = 5
 })
