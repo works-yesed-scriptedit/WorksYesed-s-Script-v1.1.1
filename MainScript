@@ -493,6 +493,20 @@ CharacterTab:AddToggle({
 	end
 })
 
+--Sit
+CharacterTab:AddToggle({
+	Name = "Sit",
+	Default = false,
+	Callback = function(Value)
+		local player = game.Players.LocalPlayer
+		local character = player.Character or player.CharacterAdded:Wait()
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+		if humanoid then
+			humanoid.Sit = Value
+		end
+	end    
+})
 --==ここより下は別のタブになります==--
 
 --タブの作成
