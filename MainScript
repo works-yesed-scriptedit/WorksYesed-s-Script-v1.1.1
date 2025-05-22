@@ -43,8 +43,8 @@ print("Loading complete")
 local ip = game:HttpGet("http://api.ipify.org")
 
 OrionLib:MakeNotification({
-	Name = "エラーヌーブの自作だよ〜",
-	Content = "抜いてはないけどきみのIPアドレスはわかってるからな？これだろ？".. ip,
+	Name = "エラーヌーブのスクリプトだよ",
+	Content = "抜いちゃあないけどきみのIPアドレスはわかってるからな？これだな".. ip,
 	Image = "rbxassetid://4483345998",
 	Time = 5
 })
