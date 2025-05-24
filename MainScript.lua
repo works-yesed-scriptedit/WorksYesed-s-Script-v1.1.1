@@ -546,14 +546,6 @@ ToolTab:AddButton({
 	Name = "BTools",
 	Callback = function()
       		print("button pressed")
-      		--[[
-A distribution of https://wearedevs.net/scripts
-Last updated August 2, 2021
-
-Description: Gives your player the old system of building tools
-
-Instruction: Inject this script into any game using a Lua executor like JJSploit. 
-]]
 
 backpack = game:GetService("Players").LocalPlayer.Backpack
 
