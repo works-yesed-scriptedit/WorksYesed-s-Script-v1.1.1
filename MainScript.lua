@@ -2,7 +2,7 @@ print("ローディング中")
 
 -- テレポート後に自動でこのスクリプトを再実行させる設定
 local success, err = pcall(function()
-	local scriptUrl = "https://raw.githubusercontent.com/works-yesed-scriptedit/WYS-Alpha-1.1.1/refs/heads/main/MainScript"
+	local scriptUrl = "https://raw.githubusercontent.com/works-yesed-scriptedit/WorksYesed-s-Script-v1.1.1/refs/heads/main/MainScript.lua"
 	queueonteleport("loadstring(game:HttpGet('" .. scriptUrl .. "'))()")
 end)
 
