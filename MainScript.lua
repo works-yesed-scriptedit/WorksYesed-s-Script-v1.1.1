@@ -1575,4 +1575,49 @@ ChatTab:AddToggle({
 	end
 })
 
+--新しいタブ
+local othersTab = Window:MakeTab({
+	Name = "Others",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+local Section = othersTab:AddSection({
+	Name = "OtherScripts"
+})
+
+--iy
+othersTab:AddButton({
+	Name = "IY",
+	Callback = function()
+      		print("button pressed")
+		loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+  	end    
+})
+
+--fling
+othersTab:AddButton({
+	Name = "Fling",
+	Callback = function()
+      		print("button pressed")
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/0Ben1/fe./main/Fling%20GUI"))()
+  	end    
+})
+--AnimationTab
+othersTab:AddButton({
+	Name = "AnimationGUI",
+	Callback = function()
+      		print("button pressed")
+		loadstring(game:HttpGet('https://raw.githubusercontent.com/works-yesed-scriptedit/Animation-GUI-Script/refs/heads/main/MainScript'))()
+	end
+})
+
+--errorexecutor
+othersTab:AddButton({
+	Name = "ErrorExecutor",
+	Callback = function()
+      		print("button pressed")
+		loadstring(game:HttpGet('https://raw.githubusercontent.com/works-yesed-scriptedit/ErrorExecutor/refs/heads/main/MainScript.lua'))()
+	end
+})
+
 OrionLib:Init()
