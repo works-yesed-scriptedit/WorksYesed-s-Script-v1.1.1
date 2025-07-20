@@ -11,7 +11,7 @@ if not success then
 end
 
 -- New draggable Orion Lib script for hub creations!
-local OrionLib = loadstring(game:HttpGet(('https://pastebin.com/raw/WRUyYTdY')))()
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/jensonhirst/Orion/refs/heads/main/source')))()
 
 --ウィンドウの作成
 local Window = OrionLib:MakeWindow({
