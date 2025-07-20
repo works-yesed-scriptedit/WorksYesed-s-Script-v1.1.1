@@ -19,22 +19,7 @@ local Window = OrionLib:MakeWindow({
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "Err0rNoob Hub", -- Put the name of your hub or script here!
-    Theme = {
-        -- 青くてプログラム風の背景画像（半透明っぽく見える）
-        Image = "rbxassetid://8752340878",
-
-        -- UI本体の黒い部分はそのまま維持
-        Background = Color3.fromRGB(20, 20, 20),
-        Border = Color3.fromRGB(60, 60, 60),
-        Topbar = Color3.fromRGB(30, 30, 30),
-        Element = Color3.fromRGB(35, 35, 35),
-        ElementBorder = Color3.fromRGB(60, 60, 60),
-
-        -- アクセントカラーを赤に変更
-        Info = Color3.fromRGB(255, 50, 50),
-        Header = Color3.fromRGB(255, 50, 50),
-        Text = Color3.fromRGB(255, 255, 255),
-        SelectedOption = Color3.fromRGB(255, 80, 80)
+    Draggable = true,
     }
 })
 
