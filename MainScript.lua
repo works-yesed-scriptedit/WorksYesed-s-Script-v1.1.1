@@ -19,7 +19,7 @@ local Window = OrionLib:MakeWindow({
     HidePremium = false,
     SaveConfig = true,
     ConfigFolder = "Err0rNoob Hub", -- Put the name of your hub or script here!
-    Draggable = true,
+    Dragging = true,
 })
 
 print("Loading complete")
