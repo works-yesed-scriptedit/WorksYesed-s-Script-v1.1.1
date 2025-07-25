@@ -1604,4 +1604,13 @@ othersTab:AddButton({
 	end
 })
 
+othersTab:AddButton({
+	Name = "VolleyBall",
+	Callback = function()
+      		print("button pressed")
+		loadstring(game:HttpGet('https://raw.githubusercontent.com/works-yesed-scriptedit/Volleyballregendsscript/refs/heads/main/mainscript.lua'))()
+		loadstring(game:HttpGet('https://raw.githubusercontent.com/works-yesed-scriptedit/Volleyballregendsscript/refs/heads/main/floormake.lua'))()
+	end
+})
+
 OrionLib:Init()
