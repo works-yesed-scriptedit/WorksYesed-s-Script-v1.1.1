@@ -509,20 +509,36 @@ local Section = ToolTab:AddSection({
 
 --Teleport Tool button
 ToolTab:AddButton({
-	Name = "Teleport Tool",
-	Callback = function()
-      		print("button pressed")
-      		mouse = game.Players.LocalPlayer:GetMouse()
-tool = Instance.new("Tool")
-tool.RequiresHandle = false
-tool.Name = "Teleport Tool"
-tool.Activated:connect(function()
-local pos = mouse.Hit+Vector3.new(0,2.5,0)
-pos = CFrame.new(pos.X,pos.Y,pos.Z)
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = pos
-end)
-tool.Parent = game.Players.LocalPlayer.Backpack
-  	end    
+    Name = "Teleport Tool",
+    Callback = function()
+        print("button pressed")
+
+        local player = game.Players.LocalPlayer
+        local mouse = player:GetMouse()
+
+        local tool = Instance.new("Tool")
+        tool.RequiresHandle = false
+        tool.Name = "Teleport Tool"
+
+        tool.Activated:Connect(function()
+            local char = player.Character
+            if not char then return end
+
+            local hrp = char:WaitForChild("HumanoidRootPart")
+
+            -- クリック地点 + 高さ補正
+            local targetPos = mouse.Hit.Position + Vector3.new(0, 2.5, 0)
+
+            -- ★向きを保持するCFrameを生成
+            -- (位置 + 元のHRPの向き)
+            local newCFrame = CFrame.new(targetPos) * (hrp.CFrame - hrp.CFrame.Position)
+
+            -- テレポート
+            hrp.CFrame = newCFrame
+        end)
+
+        tool.Parent = player.Backpack
+    end    
 })
 
 --Btools button
