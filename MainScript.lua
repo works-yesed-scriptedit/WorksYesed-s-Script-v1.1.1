@@ -1,10 +1,11 @@
 print("ローディング中")
 
--- テレポート後に自動でこのスクリプトを再実行させる設定
---local success, err = pcall(function()
-	--local scriptUrl = "https://raw.githubusercontent.com/works-yesed-scriptedit/WorksYesed-s-Script-v1.1.1/refs/heads/main/MainScript.lua"
-	--queueonteleport("loadstring(game:HttpGet('" .. scriptUrl .. "'))()")
---end)
+--// Place移動後に再実行
+if queue_on_teleport then
+	queue_on_teleport([[
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/works-yesed-scriptedit/WorksYesed-s-Script-v1.1.1/refs/heads/main/MainScript.lua"))()
+	]])
+end
 
 if not success then
 	warn("queueonteleport セット失敗:", err)
@@ -829,203 +830,401 @@ ToolTab:AddButton({
     end
 })
 
---ロケラン
 ToolTab:AddButton({
-	Name = "Rocket Launcher",
+	Name = "PlayerSelect",
 	Callback = function()
-		print("button pressed")
 
+		--// Services
 		local Players = game:GetService("Players")
 		local TweenService = game:GetService("TweenService")
+
 		local player = Players.LocalPlayer
 
-		local enablePlayerDamage = true
+		-- 既にツールがあれば作らない
+		if player.Backpack:FindFirstChild("PlayerSelector") then
+			return
+		end
 
+		--// Tool作成
 		local tool = Instance.new("Tool")
-		tool.Name = "Rocket Launcher"
+		tool.Name = "PlayerSelector"
 		tool.RequiresHandle = false
 		tool.Parent = player:WaitForChild("Backpack")
 
-		local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-		screenGui.Name = "ExplosionBlasterUI"
-		screenGui.ResetOnSpawn = false
+		--// 状態管理
+		local selectedPlayer
+		local highlight
+		local nameGui
+		local screenGui
+		local viewing = false
 
-		local fireButton = Instance.new("TextButton")
-		fireButton.Size = UDim2.new(0, 50, 0, 50)
-		fireButton.Position = UDim2.new(0, 50, 0, 50)
-		fireButton.BackgroundTransparency = 0.5
-		fireButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-		fireButton.Text = "💥"
-		fireButton.TextScaled = true
-		fireButton.Visible = false
-		fireButton.Parent = screenGui
+		--------------------------------------------------
+		-- 選択解除
+		--------------------------------------------------
+		local function clearSelection()
+			if highlight then highlight:Destroy() highlight = nil end
+			if nameGui then nameGui:Destroy() nameGui = nil end
+			if screenGui then screenGui:Destroy() screenGui = nil end
 
-		local crosshair = Instance.new("TextLabel")
-		crosshair.Size = UDim2.new(0, 30, 0, 30)
-		crosshair.Position = UDim2.new(0.5, -15, 0.5, -45)
-		crosshair.BackgroundTransparency = 1
-		crosshair.Text = "+"
-		crosshair.TextColor3 = Color3.new(1,1,1)
-		crosshair.TextScaled = true
-		crosshair.Visible = false
-		crosshair.Parent = screenGui
+			selectedPlayer = nil
+			viewing = false
 
-		local damageToggle = Instance.new("TextButton")
-		damageToggle.Size = UDim2.new(0, 200, 0, 40)
-		damageToggle.Position = UDim2.new(0.5, -100, 0, -30)
-		damageToggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-		damageToggle.TextColor3 = Color3.new(1, 1, 1)
-		damageToggle.Text = "被害を与える: オン"
-		damageToggle.TextScaled = true
-		damageToggle.Visible = false
-		damageToggle.Parent = screenGui
-
-		local powerBox = Instance.new("TextBox")
-		powerBox.Size = UDim2.new(0, 200, 0, 30)
-		powerBox.Position = UDim2.new(0.5, -100, 0, 15)
-		powerBox.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-		powerBox.TextColor3 = Color3.new(1, 1, 1)
-		powerBox.PlaceholderText = "威力 (1 ~ 1000)"
-		powerBox.Text = "1000"
-		powerBox.TextScaled = true
-		powerBox.Visible = false
-		powerBox.Parent = screenGui
-
-		damageToggle.MouseButton1Click:Connect(function()
-			enablePlayerDamage = not enablePlayerDamage
-			damageToggle.Text = "被害を与える: " .. (enablePlayerDamage and "オン" or "オフ")
-		end)
-
-		local function setFirstPerson(enabled)
-			if enabled then
-				player.CameraMode = Enum.CameraMode.LockFirstPerson
-				player.CameraMaxZoomDistance = 0
-				player.CameraMinZoomDistance = 0
-			else
-				player.CameraMode = Enum.CameraMode.Classic
-				player.CameraMaxZoomDistance = 128
-				player.CameraMinZoomDistance = 0
+			if player.Character then
+				local hum = player.Character:FindFirstChild("Humanoid")
+				if hum then
+					workspace.CurrentCamera.CameraSubject = hum
+				end
 			end
 		end
 
-		tool.Equipped:Connect(function()
-			fireButton.Visible = true
-			crosshair.Visible = true
-			damageToggle.Visible = true
-			powerBox.Visible = true
-			setFirstPerson(true)
-		end)
+		--------------------------------------------------
+		-- ハイライト
+		--------------------------------------------------
+		local function highlightPlayer(target)
+			clearSelection()
 
-		tool.Unequipped:Connect(function()
-			fireButton.Visible = false
-			crosshair.Visible = false
-			damageToggle.Visible = false
-			powerBox.Visible = false
-			setFirstPerson(false)
-		end)
+			local char = target.Character
+			if not char then return end
 
-		local canFire = true
-		fireButton.MouseButton1Click:Connect(function()
-			if not canFire then return end
-			canFire = false
-			fireButton.Text = "Loading"
+			selectedPlayer = target
 
-			local originalSize = fireButton.Size
-			local originalPos = fireButton.Position
-			local shrinkTween = TweenService:Create(fireButton, TweenInfo.new(0.1), {
-				Size = UDim2.new(0, 45, 0, 45),
-				Position = UDim2.new(0, 52, 0, 52)
-			})
-			local expandTween = TweenService:Create(fireButton, TweenInfo.new(0.1), {
-				Size = originalSize,
-				Position = originalPos
-			})
-			shrinkTween:Play()
-			shrinkTween.Completed:Connect(function()
-				expandTween:Play()
-			end)
+			highlight = Instance.new("Highlight")
+			highlight.FillColor = Color3.fromRGB(255,255,255)
+			highlight.FillTransparency = 0.75
+			highlight.OutlineColor = Color3.fromRGB(150,200,255)
+			highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+			highlight.Parent = char
 
-			local camera = workspace.CurrentCamera
-			local direction = camera.CFrame.LookVector
-			local projectile = Instance.new("Part")
-			projectile.Size = Vector3.new(1,1,1)
-			projectile.Shape = Enum.PartType.Block
-			projectile.Color = Color3.fromRGB(0,0,0)
-			projectile.Anchored = false
-			projectile.CanCollide = true
-			projectile.CFrame = CFrame.new(camera.CFrame.Position + direction * 5)
-			projectile.Parent = workspace
+			local head = char:FindFirstChild("Head")
+			if not head then return end
 
-			local bodyVelocity = Instance.new("BodyVelocity")
-			bodyVelocity.Velocity = direction * 150
-			bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-			bodyVelocity.Parent = projectile
+			nameGui = Instance.new("BillboardGui")
+			nameGui.Size = UDim2.new(0,220,0,70)
+			nameGui.StudsOffset = Vector3.new(0,3.2,0)
+			nameGui.AlwaysOnTop = true
+			nameGui.Parent = head
 
-			task.delay(4, function()
-				if projectile and projectile.Parent then
-					projectile:Destroy()
+			local frame = Instance.new("Frame", nameGui)
+			frame.Size = UDim2.fromScale(1,1)
+			frame.BackgroundColor3 = Color3.fromRGB(20,20,25)
+			frame.BackgroundTransparency = 0.2
+			Instance.new("UICorner", frame).CornerRadius = UDim.new(0,14)
+
+			local display = Instance.new("TextLabel", frame)
+			display.Size = UDim2.new(1,0,0.5,0)
+			display.BackgroundTransparency = 1
+			display.Text = target.DisplayName
+			display.Font = Enum.Font.GothamBold
+			display.TextScaled = true
+			display.TextColor3 = Color3.new(1,1,1)
+
+			local username = Instance.new("TextLabel", frame)
+			username.Size = UDim2.new(1,0,0.5,0)
+			username.Position = UDim2.new(0,0,0.5,0)
+			username.BackgroundTransparency = 1
+			username.Text = "@" .. target.Name
+			username.Font = Enum.Font.Gotham
+			username.TextScaled = true
+			username.TextColor3 = Color3.fromRGB(180,180,180)
+		end
+
+		--------------------------------------------------
+		-- 下GUI
+		--------------------------------------------------
+		local function createBottomGui()
+			if screenGui then screenGui:Destroy() end
+
+			screenGui = Instance.new("ScreenGui")
+			screenGui.ResetOnSpawn = false
+			screenGui.Parent = player:WaitForChild("PlayerGui")
+
+			local frame = Instance.new("Frame", screenGui)
+			frame.Size = UDim2.new(0,520,0,100)
+			frame.AnchorPoint = Vector2.new(0.5,1)
+			frame.Position = UDim2.new(0.5,0,1,120)
+			frame.BackgroundColor3 = Color3.fromRGB(25,25,30)
+			frame.BorderSizePixel = 0
+			Instance.new("UICorner", frame).CornerRadius = UDim.new(0,18)
+
+			local stroke = Instance.new("UIStroke", frame)
+			stroke.Thickness = 2
+			stroke.Color = Color3.fromRGB(80,170,255)
+
+			TweenService:Create(
+				frame,
+				TweenInfo.new(0.3,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),
+				{Position = UDim2.new(0.5,0,1,-20)}
+			):Play()
+
+			local container = Instance.new("Frame", frame)
+			container.Size = UDim2.fromScale(1,1)
+			container.BackgroundTransparency = 1
+
+			local layout = Instance.new("UIListLayout", container)
+			layout.FillDirection = Enum.FillDirection.Horizontal
+			layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+			layout.VerticalAlignment = Enum.VerticalAlignment.Center
+			layout.Padding = UDim.new(0,20)
+
+			local function makeButton(text,color)
+				local btn = Instance.new("TextButton")
+				btn.Size = UDim2.new(0,150,0,55)
+				btn.Text = text
+				btn.Font = Enum.Font.GothamBold
+				btn.TextScaled = true
+				btn.TextColor3 = Color3.new(1,1,1)
+				btn.BackgroundColor3 = color
+				btn.Parent = container
+				Instance.new("UICorner", btn).CornerRadius = UDim.new(0,14)
+				return btn
+			end
+
+			local teleportBtn = makeButton("Teleport", Color3.fromRGB(0,170,255))
+			local viewBtn = makeButton("View", Color3.fromRGB(255,170,0))
+			local copyBtn = makeButton("Copy Username", Color3.fromRGB(120,120,255))
+
+			-- Teleport
+			teleportBtn.MouseButton1Click:Connect(function()
+				if not selectedPlayer then return end
+				local targetRoot = selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("HumanoidRootPart")
+				local myRoot = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+				if targetRoot and myRoot then
+					myRoot.CFrame = targetRoot.CFrame * CFrame.new(0,0,-3)
 				end
 			end)
 
-			local touched = false
-			projectile.Touched:Connect(function(hit)
-				if touched then return end
-				touched = true
+			-- View
+			viewBtn.MouseButton1Click:Connect(function()
+				if not selectedPlayer then return end
+				local targetHum = selectedPlayer.Character and selectedPlayer.Character:FindFirstChild("Humanoid")
+				local myHum = player.Character and player.Character:FindFirstChild("Humanoid")
 
-				local sound = Instance.new("Sound")
-				sound.SoundId = "rbxassetid://3149249837"
-				sound.Volume = 1
-				sound.EmitterSize = 30
-				sound.MaxDistance = 100
-				sound.RollOffMode = Enum.RollOffMode.Linear
-				sound.Parent = workspace
-				sound:Play()
-				game:GetService("Debris"):AddItem(sound, 5)
-
-				local power = tonumber(powerBox.Text) or 1000
-				power = math.clamp(power, 1, 1000)
-
-				local explosion = Instance.new("Explosion")
-				explosion.Position = projectile.Position
-				explosion.BlastRadius = 20
-				explosion.BlastPressure = power * 1000
-				explosion.DestroyJointRadiusPercent = 0
-				explosion.Parent = workspace
-
-				explosion.Hit:Connect(function(part)
-					local char = part:FindFirstAncestorOfClass("Model")
-					local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-					if humanoid and char ~= player.Character then
-						if not enablePlayerDamage then return end
-						humanoid.Health = 0
-
-						for _,p in pairs(char:GetDescendants()) do
-							if p:IsA("BasePart") then
-								p.Anchored = false
-								p.Velocity = Vector3.new(math.random(-150,150), math.random(150,250), math.random(-150,150))
-								local fadeTween = TweenService:Create(p, TweenInfo.new(2), {
-									Transparency = 1
-								})
-								fadeTween:Play()
-							end
-						end
-
-						task.delay(1, function()
-							if char then
-								char:Destroy()
-							end
-						end)
-					end
-				end)
-
-				projectile:Destroy()
+				if viewing then
+					if myHum then workspace.CurrentCamera.CameraSubject = myHum end
+					viewing = false
+				else
+					if targetHum then workspace.CurrentCamera.CameraSubject = targetHum end
+					viewing = true
+				end
 			end)
 
-			task.delay(0, function()
-				canFire = true
-				fireButton.Text = "💥"
+			-- Copy
+			copyBtn.MouseButton1Click:Connect(function()
+				if not selectedPlayer then return end
+
+				if setclipboard then
+					setclipboard("@" .. selectedPlayer.Name)
+					copyBtn.Text = "Copied!"
+				else
+					copyBtn.Text = "Clipboard N/A"
+				end
+
+				task.delay(1,function()
+					copyBtn.Text = "Copy Username"
+				end)
+			end)
+		end
+
+		--------------------------------------------------
+		-- クリック処理
+		--------------------------------------------------
+		tool.Equipped:Connect(function(mouse)
+			mouse.Button1Down:Connect(function()
+				if not mouse.Target then
+					clearSelection()
+					return
+				end
+
+				local model = mouse.Target:FindFirstAncestorOfClass("Model")
+				local targetPlayer = model and Players:GetPlayerFromCharacter(model)
+
+				if targetPlayer and targetPlayer ~= player then
+					highlightPlayer(targetPlayer)
+					createBottomGui()
+				else
+					clearSelection()
+				end
 			end)
 		end)
+
+		tool.Unequipped:Connect(clearSelection)
+
+	end
+})
+
+ToolTab:AddButton({
+	Name = "SpiderMan",
+	Callback = function()
+		print("button pressed")
+
+		-- LocalScript
+
+		--// Services
+		local Players = game:GetService("Players")
+
+		--// Player & Mouse
+		local player = Players.LocalPlayer
+		local mouse = player:GetMouse()
+
+		--// Tool作成
+		local tool = Instance.new("Tool")
+		tool.Name = "RopePullTool"
+		tool.RequiresHandle = false
+		tool.Parent = player:WaitForChild("Backpack")
+
+		--// Character関連
+		local character
+		local hrp
+		local head
+
+		--// 状態管理
+		local pulling = false
+		local beam
+		local att0
+		local att1
+		local force
+		local targetPart
+		local forceAttachment
+
+		local originalGravity = workspace.Gravity
+
+		--==================================================
+		-- キャラ取得
+		--==================================================
+		local function getChar()
+			character = player.Character or player.CharacterAdded:Wait()
+			hrp = character:WaitForChild("HumanoidRootPart")
+			head = character:WaitForChild("Head")
+		end
+
+		getChar()
+		player.CharacterAdded:Connect(getChar)
+
+		--==================================================
+		-- 装備中だけ重力変更
+		--==================================================
+		tool.Equipped:Connect(function()
+			originalGravity = workspace.Gravity
+			workspace.Gravity = 85
+		end)
+
+		tool.Unequipped:Connect(function()
+			workspace.Gravity = originalGravity
+		end)
+
+		--==================================================
+		-- ロープ作成
+		--==================================================
+		local function createRope(position)
+
+			targetPart = Instance.new("Part")
+			targetPart.Anchored = true
+			targetPart.CanCollide = false
+			targetPart.Transparency = 1
+			targetPart.Size = Vector3.new(1, 1, 1)
+			targetPart.Position = position
+			targetPart.Parent = workspace
+
+			-- 頭から出すAttachment
+			att0 = Instance.new("Attachment")
+			att0.Parent = head
+
+			att1 = Instance.new("Attachment")
+			att1.Parent = targetPart
+
+			-- Beam作成
+			beam = Instance.new("Beam")
+			beam.Attachment0 = att0
+			beam.Attachment1 = att1
+			beam.Width0 = 0.4
+			beam.Width1 = 0.4
+			beam.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255))
+			beam.Transparency = NumberSequence.new(0)
+			beam.FaceCamera = false
+			beam.Parent = head
+
+			-- 引き寄せ用Force
+			forceAttachment = Instance.new("Attachment")
+			forceAttachment.Parent = hrp
+
+			force = Instance.new("VectorForce")
+			force.Attachment0 = forceAttachment
+			force.RelativeTo = Enum.ActuatorRelativeTo.World
+			force.ApplyAtCenterOfMass = true
+			force.Parent = hrp
+		end
+
+		--==================================================
+		-- ロープ削除
+		--==================================================
+		local function removeRope()
+
+			if beam then beam:Destroy() end
+			if att0 then att0:Destroy() end
+			if att1 then att1:Destroy() end
+			if targetPart then targetPart:Destroy() end
+			if force then force:Destroy() end
+			if forceAttachment then forceAttachment:Destroy() end
+
+			beam = nil
+			att0 = nil
+			att1 = nil
+			targetPart = nil
+			force = nil
+			forceAttachment = nil
+		end
+
+		--==================================================
+		-- クリック開始
+		--==================================================
+		tool.Activated:Connect(function()
+
+			if not mouse.Target then return end
+			if pulling then return end
+
+			pulling = true
+			createRope(mouse.Hit.Position)
+
+			while pulling and force do
+
+				local direction = (targetPart.Position - hrp.Position)
+				local distance = direction.Magnitude
+
+				if distance < 5 then
+					break
+				end
+
+				direction = direction.Unit
+				force.Force = direction * 3500
+
+				task.wait()
+			end
+
+			pulling = false
+			removeRope()
+		end)
+
+		--==================================================
+		-- クリック終了（上ブースト）
+		--==================================================
+		tool.Deactivated:Connect(function()
+
+			pulling = false
+			removeRope()
+
+			if hrp then
+				local currentVel = hrp.AssemblyLinearVelocity
+				local boostPower = 40
+				local newY = math.max(currentVel.Y, boostPower)
+
+				hrp.AssemblyLinearVelocity = Vector3.new(
+					currentVel.X,
+					newY,
+					currentVel.Z
+				)
+			end
+		end)
+
 	end
 })
 
@@ -1620,6 +1819,26 @@ othersTab:AddButton({
 	end
 })
 
+--Asure
+othersTab:AddButton({
+	Name = "Asure",
+	Callback = function()
+      		print("button pressed")
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/works-yesed-scriptedit/Stopwatch/refs/heads/main/MainScript.lua"))()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/works-yesed-scriptedit/Stopwatch/refs/heads/main/ac.lua"))()
+	end
+})
+
+--Shader
+othersTab:AddButton({
+	Name = "Shader",
+	Callback = function()
+      		print("button pressed")
+		loadstring(game:HttpGet('https://raw.githubusercontent.com/randomstring0/pshade-ultimate/refs/heads/main/src/cd.lua'))()
+	end
+})
+
+--volleyball
 othersTab:AddButton({
 	Name = "VolleyBall",
 	Callback = function()
