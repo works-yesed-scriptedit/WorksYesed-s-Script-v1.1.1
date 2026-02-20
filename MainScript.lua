@@ -1,12 +1,5 @@
 print("ローディング中")
 
---// Place移動後に再実行
-if queue_on_teleport then
-	queue_on_teleport([[
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/works-yesed-scriptedit/WorksYesed-s-Script-v1.1.1/refs/heads/main/MainScript.lua"))()
-	]])
-end
-
 if not success then
 	warn("queueonteleport セット失敗:", err)
 end
@@ -1610,24 +1603,46 @@ ServerTab:AddSection({
 ServerTab:AddButton({
 	Name = "Rejoin",
 	Callback = function()
-		print("Rejoining...")
-		game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
-	end    
+
+		local TeleportService = game:GetService("TeleportService")
+		local player = game.Players.LocalPlayer
+
+		if queue_on_teleport then
+			queue_on_teleport([[
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/works-yesed-scriptedit/WorksYesed-s-Script-v1.1.1/main/MainScript.lua"))()
+			]])
+		end
+
+		TeleportService:Teleport(game.PlaceId, player)
+
+	end
 })
 
---ServerHop button
+-- ServerHop button
 ServerTab:AddButton({
 	Name = "ServerHop",
 	Callback = function()
+
 		print("Server hopping...")
+
 		local TeleportService = game:GetService("TeleportService")
 		local HttpService = game:GetService("HttpService")
 		local Players = game:GetService("Players")
+		local player = Players.LocalPlayer
 		local placeId = game.PlaceId
 		local servers = {}
 
+		-- ▼ 再実行登録（シンプル）
+		if queue_on_teleport then
+			queue_on_teleport([[
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/works-yesed-scriptedit/WorksYesed-s-Script-v1.1.1/main/MainScript.lua"))()
+			]])
+		end
+
 		local success, response = pcall(function()
-			return HttpService:JSONDecode(game:HttpGetAsync("https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100"))
+			return HttpService:JSONDecode(
+				game:HttpGetAsync("https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100")
+			)
 		end)
 
 		if success and response and response.data then
@@ -1639,7 +1654,7 @@ ServerTab:AddButton({
 
 			if #servers > 0 then
 				local randomServerId = servers[math.random(1, #servers)]
-				TeleportService:TeleportToPlaceInstance(placeId, randomServerId, Players.LocalPlayer)
+				TeleportService:TeleportToPlaceInstance(placeId, randomServerId, player)
 			else
 				warn("No available servers found.")
 			end
@@ -1651,30 +1666,58 @@ ServerTab:AddButton({
 
 --日本人サーバーに行くボタン
 ServerTab:AddButton({
-	Name = "Japanese Server",
+	Name = "Low Ping Server",
 	Callback = function()
-		print("button pressed")
 
 		local Players = game:GetService("Players")
 		local TeleportService = game:GetService("TeleportService")
-		local LocalizationService = game:GetService("LocalizationService")
+		local HttpService = game:GetService("HttpService")
 
 		local player = Players.LocalPlayer
-		local locale = LocalizationService.RobloxLocaleId -- e.g., "ja-jp", "en-us"
-		local langCode = string.sub(locale, 1, 2)
-
 		local placeId = game.PlaceId
 
-		if langCode == "ja" then
-			-- 日本語の人を対象にした「再参加」的処理（ランダムなパブリックサーバー）
-			TeleportService:Teleport(placeId, player)
-		else
-			-- 日本人じゃないなら別の処理（ここでは同じ処理をしている）
-			TeleportService:Teleport(placeId, player)
+		-- ▼ Hub自動再実行
+		if queue_on_teleport then
+			queue_on_teleport([[
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/works-yesed-scriptedit/WorksYesed-s-Script-v1.1.1/main/MainScript.lua"))()
+			]])
 		end
-	end    
-})
 
+		-- ▼ サーバー取得
+		local success, response = pcall(function()
+			return HttpService:JSONDecode(
+				game:HttpGetAsync(
+					"https://games.roblox.com/v1/games/"..placeId.."/servers/Public?sortOrder=Asc&limit=100"
+				)
+			)
+		end)
+
+		if success and response and response.data then
+
+			local bestServer = nil
+			local lowestPing = math.huge
+
+			for _, server in pairs(response.data) do
+				if server.playing < server.maxPlayers and server.id ~= game.JobId then
+					if server.ping and server.ping < lowestPing then
+						lowestPing = server.ping
+						bestServer = server.id
+					end
+				end
+			end
+
+			if bestServer then
+				print("Teleporting to ping:", lowestPing)
+				TeleportService:TeleportToPlaceInstance(placeId, bestServer, player)
+			else
+				warn("No suitable server found.")
+			end
+		else
+			warn("Failed to fetch servers.")
+		end
+
+	end
+})
 --ここから新しいタブ
 
 --タブの作成
